@@ -11,4 +11,4 @@ Basta Copiar o conteúdo dentro deles e Colar dentro do *AppScript* da sua Plani
 
 # Lembrando...
 
-Certifique-se de criar uma integração de um App Web e também configurar o Email automático com Alias.
+Não esqueça de habilitar o Serviço de Gmail no seu AppScript e Certifique-se de criar uma integração de um App Web e também configurar o Email automático com Alias.
