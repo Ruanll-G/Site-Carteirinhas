@@ -15,4 +15,13 @@ Não esqueça de habilitar o Serviço de Gmail no seu AppScript e Certifique-se 
 
 # Avisos!!!
 
-A filtragem de Pessoas funciona pela cor das células da coluna "Carimbo de data/hora", certifique-se de alterar a cor do fundo da pessoa que deseja que apareça no site para a cor "#00ff00"
+A filtragem de Pessoas funciona pela cor das células da coluna "Carimbo de data/hora", certifique-se de alterar a cor do fundo da pessoa que deseja que apareça no site para a cor "#00ff00".
+
+Na Template da sua carteirinha do Google Slide, certifique de colocar essas Variáveis:
+
+{{FOTO}}
+{{NOME}}
+{{NUMERO}}
+{{ESCOLA}}
+{{TRAJETO}}
+{{VALIDADE}}
