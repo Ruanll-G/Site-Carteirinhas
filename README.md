@@ -1,6 +1,8 @@
 # Site de Geração de Carteirinhas
 
-Incorpore um site responsivo para ter mais eficiência e organização na geração de Carteirinhas Escolares através Planilha Google
+Incorpore um site responsivo para ter mais eficiência e organização na geração de Carteirinhas Escolares através Planilha Google.
+
+![Visualização_do_Site](assets/images/Site.png)
 
 # Integre no seu Google Sheets
 
