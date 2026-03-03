@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .login-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 40px);
+    }
+
+    .login-box {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 420px;
+      width: 100%;
+      padding: 50px 40px;
+      animation: slideIn 0.4s ease-out;
+    }
+
+    .login-header { text-align: center; margin-bottom: 40px; }
+    .login-header h1 { color: #333; font-size: 28px; font-weight: 600; margin-bottom: 8px; }
+    .login-header .logo { font-size: 64px; margin-bottom: 16px; }
+    .login-header p { color: #666; font-size: 14px; }
+
+    .app-container { display: none; }
+    .app-container.active { display: block; }
+
+    .navbar {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      padding: 16px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      animation: slideIn 0.4s ease-out;
+    }
+
+    .navbar-left { display: flex; align-items: center; gap: 16px; }
+    .navbar h2 { color: #667eea; font-size: 20px; font-weight: 600; }
+    .user-info { display: flex; align-items: center; gap: 12px; color: #666; font-size: 14px; }
+
+    .btn-logout {
+      padding: 8px 16px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .btn-logout:hover { background: #c82333; transform: translateY(-2px); }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 40px;
+      animation: slideIn 0.4s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .header { text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 2px solid #e1e8ed; }
+    .header h1 { color: #333; font-size: 28px; font-weight: 600; margin-bottom: 8px; }
+    .header p  { color: #666; font-size: 14px; }
+
+    .two-columns { display: grid; grid-template-columns: 400px 1fr; gap: 32px; margin-top: 32px; }
+
+    .left-panel { background: #f8f9fa; padding: 24px; border-radius: 12px; border: 2px solid #e1e8ed; }
+    .right-panel { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+
+    .panel-title { color: #667eea; font-size: 18px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+
+    .form-group { margin-bottom: 20px; }
+
+    label { display: block; color: #333; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e1e8ed;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      outline: none;
+      font-family: inherit;
+    }
+
+    textarea { resize: vertical; min-height: 80px; }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+    }
+
+    input::placeholder { color: #aaa; }
+
+    .button-group { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
+
+    button {
+      padding: 14px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .btn-search { background: #f0f4f8; color: #667eea; }
+    .btn-search:hover { background: #e1e8ed; transform: translateY(-2px); }
+
+    .btn-generate { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102,126,234,0.4); }
+
+    .btn-email { background: #28a745; color: white; }
+    .btn-email:hover { background: #218838; transform: translateY(-2px); }
+
+    .btn-config { background: #17a2b8; color: white; }
+    .btn-config:hover { background: #138496; transform: translateY(-2px); }
+
+    button:active { transform: translateY(0); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+    .status-box {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+      white-space: pre-line;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .status-box.info    { background: #e3f2fd; color: #1565c0; border-left: 4px solid #1565c0; }
+    .status-box.success { background: #e8f5e9; color: #2e7d32; border-left: 4px solid #2e7d32; }
+    .status-box.error   { background: #ffebee; color: #c62828; border-left: 4px solid #c62828; }
+    .status-box.show    { display: block; }
+
+    .preview-box {
+      margin-top: 16px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 2px dashed #667eea;
+      text-align: center;
+      display: none;
+    }
+    .preview-box.show { display: block; }
+
+    .download-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+    .download-link:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102,126,234,0.4); }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #667eea;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* Área de filtros da tabela */
+    .table-filters {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+      align-items: center;
+    }
+    .table-filters .search-input-wrap {
+      flex: 1;
+      min-width: 180px;
+    }
+    .table-filters .search-input-wrap input {
+      margin: 0;
+    }
+    .filter-btn-group {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .filter-btn {
+      padding: 8px 14px;
+      border: 2px solid #e1e8ed;
+      border-radius: 6px;
+      background: white;
+      color: #666;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .filter-btn:hover { border-color: #667eea; color: #667eea; transform: none; }
+    .filter-btn.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-color: transparent; }
+
+    .table-container {
+      overflow-x: auto;
+      max-height: 600px;
+      overflow-y: auto;
+      border: 1px solid #e1e8ed;
+      border-radius: 8px;
+    }
+
+    table { min-width: 900px; width: 100%; border-collapse: collapse; }
+    thead { position: sticky; top: 0; z-index: 10; }
+
+    th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    td { padding: 10px 12px; border-bottom: 1px solid #e1e8ed; vertical-align: middle; }
+    tbody tr:hover { background: #f8f9fa; }
+
+    .action-btn { padding: 6px 12px; font-size: 11px; margin-right: 4px; margin-bottom: 4px; white-space: nowrap; }
+
+    .btn-generated { background: #6c757d; color: white; }
+    .btn-generated:hover { background: #5a6268; transform: translateY(-2px); }
+
+    .info-card { background: white; padding: 20px; border-radius: 8px; border: 2px solid #e1e8ed; margin-top: 20px; }
+    .info-card h4 { color: #667eea; font-size: 16px; margin-bottom: 12px; }
+
+    .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f4f8; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: #666; font-weight: 500; }
+    .info-value { color: #333; font-weight: 600; }
+
+    .trajeto-adicional-section { margin-top: 24px; padding-top: 24px; border-top: 2px solid #e1e8ed; }
+
+    @media (max-width: 1200px) {
+      .two-columns { grid-template-columns: 1fr; }
+      .left-panel  { max-width: 100%; }
+    }
+
+    @media (max-width: 768px) {
+      .container { padding: 24px; }
+      .navbar { flex-direction: column; gap: 12px; }
+      .navbar-left { flex-direction: column; text-align: center; }
+      table { font-size: 11px; }
+      th, td { padding: 8px 4px; }
+      .login-box { padding: 30px 24px; }
+      .table-filters { flex-direction: column; }
+      .filter-btn-group { flex-wrap: wrap; }
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; text-align: center; }
+    .stat-number { font-size: 32px; font-weight: 700; margin-bottom: 4px; }
+    .stat-label  { font-size: 13px; opacity: 0.9; }
+
+    #paginacaoTabela { display: flex; justify-content: center; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+
+    /* ─── FOTO MINIATURA ─── */
+    .foto-thumb {
+      width: 42px;
+      height: 56px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      transition: transform 0.2s;
+      display: block;
+    }
+    .foto-thumb:hover { transform: scale(1.1); }
+    .foto-placeholder {
+      width: 42px;
+      height: 56px;
+      background: #e9ecef;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #aaa;
+    }
+
+    /* Modal de foto ampliada */
+    .foto-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+    }
+    .foto-modal-overlay.show { display: flex; }
+    .foto-modal-overlay img {
+      max-width: 90vw;
+      max-height: 85vh;
+      border-radius: 8px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    }
+    .foto-modal-close {
+      position: absolute;
+      top: 20px;
+      right: 28px;
+      color: white;
+      font-size: 36px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    /* ─── STATUS REPROVA ─── */
+    .badge-reprova {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffc107;
+      max-width: 140px;
+      white-space: normal;
+      line-height: 1.3;
+    }
+    .badge-gerada {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #28a745;
+    }
+    .badge-pendente {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #e2e3e5;
+      color: #383d41;
+      border: 1px solid #adb5bd;
+    }
+
+    /* ─── AGRUPAMENTO CPF (árvore) ─── */
+    .cpf-group-container { padding: 4px 0; }
+    details.cpf-group { }
+    details.cpf-group > summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: #667eea;
+      font-size: 13px;
+      padding: 4px 6px;
+      border-radius: 4px;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+    }
+    details.cpf-group > summary::-webkit-details-marker { display: none; }
+    details.cpf-group > summary::before {
+      content: '▶';
+      font-size: 10px;
+      color: #764ba2;
+      transition: transform 0.2s;
+      display: inline-block;
+    }
+    details.cpf-group[open] > summary::before { transform: rotate(90deg); }
+    details.cpf-group > summary:hover { background: #f0f4ff; }
+    .cpf-group-children {
+      padding-left: 16px;
+      margin-top: 4px;
+    }
+    .cpf-child-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px;
+      border-left: 2px solid #e1e8ed;
+      margin-bottom: 4px;
+      border-radius: 0 4px 4px 0;
+      background: #fafafa;
+    }
+    .cpf-child-row:hover { background: #f0f4ff; }
+    .cpf-child-name { font-size: 12px; color: #333; font-weight: 600; flex: 1; min-width: 120px; }
+    .cpf-child-escola { font-size: 11px; color: #666; flex: 1; min-width: 100px; }
+    .cpf-child-actions { display: flex; flex-wrap: wrap; gap: 4px; }
+  </style>
+</head>
+<body>
+
+  <!-- MODAL FOTO AMPLIADA -->
+  <div id="fotoModalOverlay" class="foto-modal-overlay" onclick="fecharFotoModal(event)">
+    <span class="foto-modal-close" onclick="fecharFotoModal()">&times;</span>
+    <img id="fotoModalImg" src="" alt="Foto ampliada" />
+  </div>
+
+  <!-- TELA DE LOGIN -->
+  <div id="loginScreen" class="login-container">
+    <div class="login-box">
+      <div class="login-header">
+        <div class="logo">🎓</div>
+        <h1>Empresa</h1>
+        <p>Sistema de Carteirinhas Escolares</p>
+      </div>
+
+      <div class="form-group">
+        <label for="loginUsuario">Usuário</label>
+        <input type="text" id="loginUsuario" placeholder="Digite seu usuário" autocomplete="username" />
+      </div>
+
+      <div class="form-group">
+        <label for="loginSenha">Senha</label>
+        <input type="password" id="loginSenha" placeholder="Digite sua senha" autocomplete="current-password" />
+      </div>
+
+      <button class="btn-generate" onclick="fazerLogin()" style="width:100%;margin-top:24px;">🔐 Entrar</button>
+
+      <div id="loginStatus" class="status-box"></div>
+    </div>
+  </div>
+
+  <!-- APLICAÇÃO PRINCIPAL -->
+  <div id="appScreen" class="app-container">
+    <div class="navbar">
+      <div class="navbar-left">
+        <h2>🎓 Sistema de Carteirinhas</h2>
+        <div class="user-info">👤 <span id="nomeUsuario">Usuário</span></div>
+      </div>
+      <button class="btn-logout" onclick="fazerLogout()">🚪 Sair</button>
+    </div>
+
+    <div class="container">
+      <div class="header">
+        <h1>🎓 Sistema de Carteirinhas Escolares</h1>
+        <p>Gerencie carteirinhas de forma rápida e eficiente</p>
+      </div>
+
+      <!-- Estatísticas -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="statTotal">-</div>
+          <div class="stat-label">Total de Alunos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="statGeradas">-</div>
+          <div class="stat-label">Carteirinhas Geradas</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="statPendentes">-</div>
+          <div class="stat-label">Pendentes</div>
+        </div>
+      </div>
+
+      <div class="two-columns">
+        <!-- Painel Esquerdo -->
+        <div class="left-panel">
+          <div class="panel-title">🔍 Buscar e Gerar Carteirinha</div>
+
+          <div class="form-group">
+            <label for="cardNumber">Número da Carteirinha *</label>
+            <input type="text" id="cardNumber" placeholder="Digite o CPF" autocomplete="off" />
+          </div>
+
+          <div class="button-group">
+            <button class="btn-search" onclick="buscarEExibir()">🔍 Buscar Dados</button>
+          </div>
+
+          <div id="infoAluno" class="info-card" style="display:none;">
+            <h4>📋 Informações do Aluno</h4>
+            <div class="info-row"><span class="info-label">Nome:</span><span class="info-value" id="infoNome">-</span></div>
+            <div class="info-row"><span class="info-label">Escola:</span><span class="info-value" id="infoEscola">-</span></div>
+            <div class="info-row"><span class="info-label">E-mail:</span><span class="info-value" id="infoEmail">-</span></div>
+            <div class="info-row"><span class="info-label">Trajeto Principal:</span><span class="info-value" id="infoTrajeto">-</span></div>
+            <div class="info-row"><span class="info-label">Trajeto Adicional:</span><span class="info-value" id="infoTrajetoAdd">-</span></div>
+            <div class="info-row"><span class="info-label">Validade Atual:</span><span class="info-value" id="infoValidade">-</span></div>
+          </div>
+
+          <div id="formGerar" style="display:none;">
+            <div class="form-group" style="margin-top:20px;">
+              <label for="dataValidade">Data de Validade *</label>
+              <input type="text" id="dataValidade" placeholder="DD/MM/AAAA" maxlength="10" />
+              <small style="color:#666;font-size:12px;">Formato: DD/MM/AAAA</small>
+            </div>
+            <div class="button-group">
+              <button class="btn-generate" onclick="gerarCarteirinha()">📄 Gerar Carteirinha</button>
+              <button class="btn-email" onclick="enviarEmail()" id="btnEnviarEmail" disabled>📧 Enviar por E-mail</button>
+            </div>
+          </div>
+
+          <!-- Trajeto Adicional -->
+          <div class="trajeto-adicional-section">
+            <div class="panel-title" style="font-size:16px;">🚌 Adicionar Trajeto Extra</div>
+            <div class="form-group">
+              <label for="trajetoAdicional">Trajeto Adicional</label>
+              <textarea id="trajetoAdicional" placeholder="Ex: VOLTA - Escola → Bairro Centro (Linha 2)"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="obsTrajetoAdicional">Observações (opcional)</label>
+              <input type="text" id="obsTrajetoAdicional" placeholder="Ex: Trajeto extra para segunda e quarta-feira" />
+            </div>
+            <button class="btn-config" onclick="salvarTrajetoExtra()">💾 Salvar Trajeto Extra</button>
+          </div>
+
+          <div id="status" class="status-box"></div>
+          <div id="preview" class="preview-box"></div>
+        </div>
+
+        <!-- Painel Direito -->
+        <div class="right-panel">
+          <div class="panel-title">📋 Lista de Cadastros</div>
+
+          <!-- Filtros -->
+          <div class="table-filters">
+            <div class="search-input-wrap">
+              <input type="text" id="searchInput" placeholder="🔍 Buscar por nome, CPF ou escola..." oninput="filtrarTabela()" />
+            </div>
+            <div class="filter-btn-group">
+              <button class="filter-btn active" id="filtroTodas"    onclick="definirFiltroStatus('todas')">📋 Todas</button>
+              <button class="filter-btn"         id="filtroGeradas"  onclick="definirFiltroStatus('geradas')">✅ Geradas</button>
+              <button class="filter-btn"         id="filtroPendentes" onclick="definirFiltroStatus('pendentes')">⏳ Pendentes</button>
+            </div>
+            <div class="filter-btn-group">
+              <button class="filter-btn" id="btnAgruparCpf" onclick="toggleAgrupamento()">🔗 Agrupar CPF</button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table id="tabelaAlunos">
+              <thead>
+                <tr>
+                  <th style="width:50px;">Foto</th>
+                  <th style="width:130px;">CPF / Nº</th>
+                  <th>Nome</th>
+                  <th>Escola</th>
+                  <th style="width:90px;">Validade</th>
+                  <th style="width:110px;">Status</th>
+                  <th style="min-width:190px;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="corpoTabela">
+                <tr>
+                  <td colspan="7" style="text-align:center;padding:40px;">
+                    <span class="spinner"></span> Carregando dados...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div id="paginacaoTabela"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let usuarioLogado    = null;
+    let todosAlunos      = [];
+    let alunosFiltrados  = [];
+    let alunoAtual       = null;
+    let paginaAtualTabela = 1;
+    const registrosPorPagina = 10;
+    let filtroStatusAtual = 'todas';
+    let modoAgrupado = false;
+
+    const statusBox   = document.getElementById('status');
+    const previewBox  = document.getElementById('preview');
+    const loginStatus = document.getElementById('loginStatus');
+
+    // ── INIT ──────────────────────────────────────────────────
+    window.onload = function () {
+      var usuarioSalvo = sessionStorage.getItem('usuarioLogado');
+      if (usuarioSalvo) {
+        usuarioLogado = usuarioSalvo;
+        mostrarApp();
+      }
+    };
+
+    // ── LOGIN ─────────────────────────────────────────────────
+    function fazerLogin() {
+      var usuario = document.getElementById('loginUsuario').value.trim();
+      var senha   = document.getElementById('loginSenha').value;
+
+      if (!usuario || !senha) {
+        setLoginStatus('⚠️ Por favor, preencha usuário e senha.', 'error');
+        return;
+      }
+
+      var btn = event.target;
+      setLoading(btn, true);
+      setLoginStatus('Autenticando...', 'info');
+
+      google.script.run
+        .withSuccessHandler(function (resp) {
+          setLoading(btn, false);
+          if (resp.success) {
+            usuarioLogado = resp.usuario;
+            sessionStorage.setItem('usuarioLogado', usuarioLogado);
+            setLoginStatus('✓ ' + resp.message, 'success');
+            setTimeout(mostrarApp, 500);
+          } else {
+            setLoginStatus('✗ ' + resp.message, 'error');
+            document.getElementById('loginSenha').value = '';
+          }
+        })
+        .withFailureHandler(function (error) {
+          setLoading(btn, false);
+          setLoginStatus('✗ Erro ao autenticar: ' + error.message, 'error');
+        })
+        .autenticar(usuario, senha);
+    }
+
+    function fazerLogout() {
+      if (confirm('Deseja realmente sair do sistema?')) {
+        sessionStorage.removeItem('usuarioLogado');
+        usuarioLogado = null;
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('appScreen').classList.remove('active');
+        document.getElementById('loginUsuario').value = '';
+        document.getElementById('loginSenha').value   = '';
+        loginStatus.className = 'status-box';
+      }
+    }
+
+    function mostrarApp() {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('appScreen').classList.add('active');
+      document.getElementById('nomeUsuario').textContent = usuarioLogado;
+      carregarListaCompleta();
+    }
+
+    function setLoginStatus(message, type) {
+      loginStatus.textContent = message;
+      loginStatus.className   = 'status-box show ' + (type || 'info');
+    }
+
+    // ── LISTENERS ─────────────────────────────────────────────
+    document.getElementById('loginSenha').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') fazerLogin();
+    });
+    document.getElementById('loginUsuario').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') document.getElementById('loginSenha').focus();
+    });
+    document.getElementById('cardNumber').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') buscarEExibir();
+    });
+
+    // Máscara data
+    document.getElementById('dataValidade').addEventListener('input', function (e) {
+      var value = e.target.value.replace(/\D/g, '');
+      if (value.length >= 2) value = value.substring(0, 2) + '/' + value.substring(2);
+      if (value.length >= 5) value = value.substring(0, 5) + '/' + value.substring(5, 9);
+      e.target.value = value;
+    });
+
+    // ── HELPERS ───────────────────────────────────────────────
+    function setStatus(message, type) {
+      statusBox.textContent = message;
+      statusBox.className   = 'status-box show ' + (type || 'info');
+    }
+
+    function setLoading(button, isLoading) {
+      if (isLoading) {
+        button.disabled = true;
+        if (!button.querySelector('.spinner')) {
+          var spinner = document.createElement('span');
+          spinner.className = 'spinner';
+          button.insertBefore(spinner, button.firstChild);
+        }
+      } else {
+        button.disabled = false;
+        var spinner = button.querySelector('.spinner');
+        if (spinner) spinner.remove();
+      }
+    }
+
+    function formatarDataBR(data) {
+      if (!data) return '-';
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(String(data))) return data;
+      var d = new Date(data);
+      if (isNaN(d.getTime())) return data;
+      var dia = String(d.getDate()).padStart(2, '0');
+      var mes = String(d.getMonth() + 1).padStart(2, '0');
+      return dia + '/' + mes + '/' + d.getFullYear();
+    }
+
+    function validarData(data) {
+      var regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+      if (!regex.test(data)) return false;
+      var partes = data.split('/');
+      var dia = parseInt(partes[0]);
+      var mes = parseInt(partes[1]);
+      var ano = parseInt(partes[2]);
+      if (mes < 1 || mes > 12) return false;
+      if (dia < 1 || dia > 31) return false;
+      if (ano < 2024 || ano > 2050) return false;
+      return true;
+    }
+
+    // ── CONVERTE LINK DRIVE PARA URL DE MINIATURA ─────────────
+    function converterLinkDriveMiniatura(link) {
+      if (!link) return null;
+      link = String(link).trim();
+      // Extrai ID do Google Drive
+      var match = link.match(/\/d\/([a-zA-Z0-9_-]{10,})/) ||
+                  link.match(/[?&]id=([a-zA-Z0-9_-]{10,})/);
+      if (match) {
+        return 'https://drive.google.com/thumbnail?id=' + match[1] + '&sz=w80-h107';
+      }
+      // Pode ser só o ID
+      if (/^[a-zA-Z0-9_-]{20,}$/.test(link)) {
+        return 'https://drive.google.com/thumbnail?id=' + link + '&sz=w80-h107';
+      }
+      return null;
+    }
+
+    function converterLinkDriveAmpliado(link) {
+      if (!link) return null;
+      link = String(link).trim();
+      var match = link.match(/\/d\/([a-zA-Z0-9_-]{10,})/) ||
+                  link.match(/[?&]id=([a-zA-Z0-9_-]{10,})/);
+      if (match) {
+        return 'https://drive.google.com/thumbnail?id=' + match[1] + '&sz=w600-h800';
+      }
+      if (/^[a-zA-Z0-9_-]{20,}$/.test(link)) {
+        return 'https://drive.google.com/thumbnail?id=' + link + '&sz=w600-h800';
+      }
+      return null;
+    }
+
+    // ── MODAL FOTO ────────────────────────────────────────────
+    function abrirFotoModal(urlAmpliada) {
+      document.getElementById('fotoModalImg').src = urlAmpliada;
+      document.getElementById('fotoModalOverlay').classList.add('show');
+    }
+
+    // Versão segura: lê a URL do data-attribute para evitar problemas de escape
+    function abrirFotoModalEl(el) {
+      var url = el.getAttribute('data-ampliada');
+      if (url) abrirFotoModal(url);
+    }
+
+    function fecharFotoModal(event) {
+      if (!event || event.target === document.getElementById('fotoModalOverlay') || event.target.classList.contains('foto-modal-close')) {
+        document.getElementById('fotoModalOverlay').classList.remove('show');
+        document.getElementById('fotoModalImg').src = '';
+      }
+    }
+
+    // ── BUSCAR ALUNO ──────────────────────────────────────────
+    function buscarEExibir(identificadorOverride) {
+      var num = document.getElementById('cardNumber').value.trim();
+      if (!num) { setStatus('⚠️ Por favor, informe o número da carteirinha.', 'error'); return; }
+
+      // Se veio um identificador com rowIndex (da tabela agrupada), usa ele; senão usa o CPF digitado
+      var identificador = identificadorOverride || num;
+      window._alunoIdentificador = identificador;
+
+      var btn = event ? event.target : document.querySelector('.btn-search');
+      setLoading(btn, true);
+      setStatus('Buscando informações...', 'info');
+
+      document.getElementById('infoAluno').style.display = 'none';
+      document.getElementById('formGerar').style.display = 'none';
+      previewBox.className = 'preview-box';
+      document.getElementById('btnEnviarEmail').disabled = true;
+
+      google.script.run
+        .withSuccessHandler(function (resp) {
+          setLoading(btn, false);
+          if (resp.success) {
+            alunoAtual = resp.student;
+
+            document.getElementById('infoNome').textContent       = alunoAtual.nome;
+            document.getElementById('infoEscola').textContent     = alunoAtual.escola;
+            document.getElementById('infoEmail').textContent      = alunoAtual.email || 'Não informado';
+            document.getElementById('infoTrajeto').textContent    = alunoAtual.trajetoPrincipal || '-';
+            document.getElementById('infoTrajetoAdd').textContent = alunoAtual.trajetoAdicional || 'Nenhum';
+
+            var validadeFormatada = formatarDataBR(alunoAtual.dataValidade);
+            document.getElementById('infoValidade').textContent = validadeFormatada;
+            document.getElementById('dataValidade').value       = validadeFormatada;
+            document.getElementById('trajetoAdicional').value   = alunoAtual.trajetoAdicional || '';
+
+            document.getElementById('infoAluno').style.display = 'block';
+            document.getElementById('formGerar').style.display = 'block';
+            setStatus('✓ Aluno encontrado!', 'success');
+          } else {
+            setStatus('✗ ' + resp.message, 'error');
+            alunoAtual = null;
+          }
+        })
+        .withFailureHandler(function (error) {
+          setLoading(btn, false);
+          setStatus('✗ Erro ao buscar: ' + error.message, 'error');
+          alunoAtual = null;
+        })
+        .getStudent(identificador);
+    }
+
+    // ── GERAR CARTEIRINHA ─────────────────────────────────────
+    function gerarCarteirinha() {
+      if (!alunoAtual) { setStatus('⚠️ Busque um aluno primeiro.', 'error'); return; }
+
+      var dataValidade = document.getElementById('dataValidade').value.trim();
+      if (!dataValidade) { setStatus('⚠️ Por favor, informe a data de validade.', 'error'); return; }
+      if (!validarData(dataValidade)) { setStatus('⚠️ Data inválida. Use o formato DD/MM/AAAA.', 'error'); return; }
+
+      var btn = event.target;
+      setLoading(btn, true);
+      previewBox.className = 'preview-box';
+      document.getElementById('btnEnviarEmail').disabled = true;
+      setStatus('Gerando carteirinha... Aguarde.', 'info');
+
+      google.script.run
+        .withSuccessHandler(function (resp) {
+          setLoading(btn, false);
+          if (resp.success) {
+            setStatus('✓ Carteirinha gerada com sucesso!', 'success');
+            previewBox.innerHTML = '<a href="' + resp.fileUrl + '" target="_blank" class="download-link">📥 Abrir/Baixar Carteirinha</a>';
+            previewBox.className = 'preview-box show';
+            document.getElementById('btnEnviarEmail').disabled = false;
+            carregarListaCompleta();
+          } else {
+            setStatus('✗ ' + (resp.message || 'Erro desconhecido'), 'error');
+          }
+        })
+        .withFailureHandler(function (error) {
+          setLoading(btn, false);
+          setStatus('✗ Erro ao gerar: ' + error.message, 'error');
+        })
+        .generateCard(window._alunoIdentificador || alunoAtual.numero, dataValidade);
+    }
+
+    // ── ENVIAR E-MAIL ─────────────────────────────────────────
+    function enviarEmail() {
+      if (!alunoAtual) { setStatus('⚠️ Busque um aluno primeiro.', 'error'); return; }
+
+      var btn = document.getElementById('btnEnviarEmail');
+      setLoading(btn, true);
+      setStatus('Enviando e-mail... Aguarde.', 'info');
+
+      google.script.run
+        .withSuccessHandler(function (resp) {
+          setLoading(btn, false);
+          setStatus((resp.success ? '✓ ' : '✗ ') + resp.message, resp.success ? 'success' : 'error');
+        })
+        .withFailureHandler(function (error) {
+          setLoading(btn, false);
+          setStatus('✗ Erro ao enviar: ' + error.message, 'error');
+        })
+        .sendEmail(alunoAtual.numero);
+    }
+
+    // ── SALVAR TRAJETO EXTRA ──────────────────────────────────
+    function salvarTrajetoExtra() {
+      if (!alunoAtual) { setStatus('⚠️ Busque um aluno primeiro.', 'error'); return; }
+
+      var trajeto = document.getElementById('trajetoAdicional').value.trim();
+      var obs     = document.getElementById('obsTrajetoAdicional').value.trim();
+
+      if (!trajeto) { setStatus('⚠️ Por favor, informe o trajeto adicional.', 'error'); return; }
+
+      var btn = event.target;
+      setLoading(btn, true);
+      setStatus('Salvando trajeto adicional...', 'info');
+
+      google.script.run
+        .withSuccessHandler(function (resp) {
+          setLoading(btn, false);
+          if (resp.success) { setStatus('✓ ' + resp.message, 'success'); buscarEExibir(); }
+          else { setStatus('✗ ' + resp.message, 'error'); }
+        })
+        .withFailureHandler(function (error) {
+          setLoading(btn, false);
+          setStatus('✗ Erro: ' + error.message, 'error');
+        })
+        .setTrajetoAdicional(alunoAtual.numero, trajeto, obs);
+    }
+
+    // ── CARREGAR LISTA COMPLETA ───────────────────────────────
+    function carregarListaCompleta() {
+      google.script.run
+        .withSuccessHandler(function (resp) {
+          if (resp.success) {
+            todosAlunos = resp.students;
+
+            var total     = todosAlunos.length;
+            var geradas   = todosAlunos.filter(function (a) { return a.carteirinhaUrl; }).length;
+            var pendentes = total - geradas;
+
+            document.getElementById('statTotal').textContent     = total;
+            document.getElementById('statGeradas').textContent   = geradas;
+            document.getElementById('statPendentes').textContent = pendentes;
+
+            aplicarFiltros();
+          } else {
+            document.getElementById('corpoTabela').innerHTML =
+              '<tr><td colspan="7" style="text-align:center;padding:40px;color:#c62828;">✗ ' + resp.message + '</td></tr>';
+          }
+        })
+        .withFailureHandler(function (error) {
+          document.getElementById('corpoTabela').innerHTML =
+            '<tr><td colspan="7" style="text-align:center;padding:40px;color:#c62828;">✗ Erro ao carregar: ' + error.message + '</td></tr>';
+        })
+        .getAllStudents();
+    }
+
+    // ── FILTRO DE STATUS ──────────────────────────────────────
+    function definirFiltroStatus(filtro) {
+      filtroStatusAtual = filtro;
+      document.getElementById('filtroTodas').classList.toggle('active', filtro === 'todas');
+      document.getElementById('filtroGeradas').classList.toggle('active', filtro === 'geradas');
+      document.getElementById('filtroPendentes').classList.toggle('active', filtro === 'pendentes');
+      paginaAtualTabela = 1;
+      aplicarFiltros();
+    }
+
+    // ── TOGGLE AGRUPAMENTO CPF ────────────────────────────────
+    function toggleAgrupamento() {
+      modoAgrupado = !modoAgrupado;
+      var btn = document.getElementById('btnAgruparCpf');
+      btn.classList.toggle('active', modoAgrupado);
+      btn.textContent = modoAgrupado ? '📄 Ver Lista' : '🔗 Agrupar CPF';
+      paginaAtualTabela = 1;
+      renderizarTabela();
+    }
+
+    // ── APLICAR TODOS OS FILTROS ──────────────────────────────
+    function aplicarFiltros() {
+      var termo = (document.getElementById('searchInput').value || '').toLowerCase();
+
+      alunosFiltrados = todosAlunos.filter(function (aluno) {
+        // Filtro texto
+        var buscaOk = !termo ||
+          String(aluno.nome).toLowerCase().includes(termo) ||
+          String(aluno.numero).toLowerCase().includes(termo) ||
+          String(aluno.escola).toLowerCase().includes(termo);
+
+        // Filtro status
+        var statusOk = true;
+        if (filtroStatusAtual === 'geradas')   statusOk = !!aluno.carteirinhaUrl;
+        if (filtroStatusAtual === 'pendentes') statusOk = !aluno.carteirinhaUrl;
+
+        return buscaOk && statusOk;
+      });
+
+      paginaAtualTabela = 1;
+      renderizarTabela();
+    }
+
+    // ── FILTRAR TABELA (busca texto) ──────────────────────────
+    function filtrarTabela() {
+      aplicarFiltros();
+    }
+
+    // ── RENDERIZAR TABELA ─────────────────────────────────────
+    function renderizarTabela() {
+      if (modoAgrupado) {
+        renderizarTabelaAgrupada();
+        return;
+      }
+
+      var tbody = document.getElementById('corpoTabela');
+
+      if (!alunosFiltrados || alunosFiltrados.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#666;">Nenhum cadastro encontrado.</td></tr>';
+        document.getElementById('paginacaoTabela').innerHTML = '';
+        return;
+      }
+
+      var inicio = (paginaAtualTabela - 1) * registrosPorPagina;
+      var pagina = alunosFiltrados.slice(inicio, inicio + registrosPorPagina);
+
+      tbody.innerHTML = pagina.map(function (aluno) {
+        return montarLinhaAluno(aluno);
+      }).join('');
+
+      renderizarPaginacaoTabela();
+    }
+
+    // ── MONTAR LINHA DA TABELA ────────────────────────────────
+    function montarLinhaAluno(aluno) {
+      var temCarteirinha = aluno.carteirinhaUrl;
+
+      // Foto miniatura
+      var fotoHtml = '';
+      var fotoUrl = converterLinkDriveMiniatura(aluno.foto);
+      if (fotoUrl) {
+        var fotoAmpliada = converterLinkDriveAmpliado(aluno.foto);
+        // Armazena a URL em data-attribute para evitar problemas de escape com aspas
+        fotoHtml = '<img class="foto-thumb" src="' + fotoUrl + '" ' +
+          'data-ampliada="' + fotoAmpliada.replace(/"/g, '&quot;') + '" ' +
+          'onerror="this.outerHTML=\'<div class=&quot;foto-placeholder&quot;>👤</div>\'" ' +
+          'onclick="abrirFotoModalEl(this)" ' +
+          'title="Clique para ampliar" alt="Foto" />';
+      } else {
+        fotoHtml = '<div class="foto-placeholder">👤</div>';
+      }
+
+      // Status + reprova
+      var statusHtml = '';
+      if (temCarteirinha) {
+        statusHtml = '<span class="badge-gerada">✅ Gerada</span>';
+      } else if (aluno.statusReprova) {
+        statusHtml = '<span class="badge-reprova">⚠️ ' + escapeHtml(aluno.statusReprova) + '</span>';
+      } else {
+        statusHtml = '<span class="badge-pendente">⏳ Pendente</span>';
+      }
+
+      // Botões de ação
+      var botoesAcao = '';
+      if (temCarteirinha) {
+        botoesAcao =
+          '<button class="btn-generated action-btn" onclick="window.open(\'' + temCarteirinha + '\',\'_blank\')">✓ Ver</button>' +
+          '<button class="btn-generate action-btn" onclick="selecionarAluno(\'' + escapeAttr(aluno.numero) + '\')">📄 Gerar Nova</button>' +
+          (aluno.email ? '<button class="btn-email action-btn" onclick="enviarEmailDireto(\'' + escapeAttr(aluno.numero) + '\')">📧</button>' : '');
+      } else {
+        botoesAcao = '<button class="btn-generate action-btn" onclick="selecionarAluno(\'' + escapeAttr(aluno.numero) + '\')">📄 Gerar</button>';
+      }
+
+      return '<tr>' +
+        '<td>' + fotoHtml + '</td>' +
+        '<td><strong style="font-size:12px;">' + escapeHtml(aluno.numero) + '</strong></td>' +
+        '<td>' + escapeHtml(aluno.nome) + '</td>' +
+        '<td><small>' + escapeHtml(aluno.escola) + '</small></td>' +
+        '<td><small>' + formatarDataBR(aluno.dataValidade) + '</small></td>' +
+        '<td>' + statusHtml + '</td>' +
+        '<td style="white-space:nowrap;">' + botoesAcao + '</td>' +
+        '</tr>';
+    }
+
+    // ── RENDERIZAR TABELA AGRUPADA POR CPF ───────────────────
+    function renderizarTabelaAgrupada() {
+      var tbody = document.getElementById('corpoTabela');
+      document.getElementById('paginacaoTabela').innerHTML = '';
+
+      if (!alunosFiltrados || alunosFiltrados.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#666;">Nenhum cadastro encontrado.</td></tr>';
+        return;
+      }
+
+      // Agrupa por CPF (campo numero)
+      var grupos = {};
+      var ordem  = [];
+      alunosFiltrados.forEach(function (aluno) {
+        var cpf = String(aluno.numero).replace(/\D/g, '') || aluno.numero;
+        if (!grupos[cpf]) {
+          grupos[cpf] = [];
+          ordem.push(cpf);
+        }
+        grupos[cpf].push(aluno);
+      });
+
+      var html = '';
+      ordem.forEach(function (cpf) {
+        var lista = grupos[cpf];
+
+        if (lista.length === 1) {
+          // Sem agrupamento, exibe linha normal
+          html += montarLinhaAluno(lista[0]);
+        } else {
+          // Múltiplos registros com mesmo CPF → árvore
+          var geradasGrupo = lista.filter(function(a){ return a.carteirinhaUrl; }).length;
+          var labelResumo = escapeHtml(cpf) +
+            ' <small style="color:#764ba2;font-weight:400;">(' + lista.length + ' cadastros' +
+            (geradasGrupo > 0 ? ', ' + geradasGrupo + ' geradas' : '') + ')</small>';
+
+          var filhosHtml = lista.map(function (aluno) {
+            var temCarteirinha = aluno.carteirinhaUrl;
+            // Identificador único para linha específica: "CPF:rowIndex"
+            var idAluno = aluno.rowIndex !== undefined
+              ? escapeAttr(aluno.numero + ':' + aluno.rowIndex)
+              : escapeAttr(aluno.numero);
+
+            var fotoUrl = converterLinkDriveMiniatura(aluno.foto);
+            var fotoAmpliada = converterLinkDriveAmpliado(aluno.foto);
+            var fotoInline = fotoUrl
+              ? '<img style="width:32px;height:43px;object-fit:cover;border-radius:3px;border:1px solid #ccc;cursor:pointer;vertical-align:middle;" ' +
+                'src="' + fotoUrl + '" ' +
+                'data-ampliada="' + (fotoAmpliada || '').replace(/"/g, '&quot;') + '" ' +
+                'onerror="this.style.display=\'none\'" ' +
+                'onclick="abrirFotoModalEl(this)" title="Ampliar foto" />'
+              : '<span style="font-size:16px;">👤</span>';
+
+            var statusBadge = temCarteirinha
+              ? '<span class="badge-gerada">✅ Gerada</span>'
+              : (aluno.statusReprova
+                  ? '<span class="badge-reprova">⚠️ ' + escapeHtml(aluno.statusReprova) + '</span>'
+                  : '<span class="badge-pendente">⏳ Pendente</span>');
+
+            var botoesAcao = '';
+            if (temCarteirinha) {
+              botoesAcao =
+                '<button class="btn-generated action-btn" onclick="window.open(\'' + temCarteirinha + '\',\'_blank\')">✓ Ver</button>' +
+                '<button class="btn-generate action-btn" onclick="selecionarAluno(\'' + idAluno + '\')">📄 Nova</button>' +
+                (aluno.email ? '<button class="btn-email action-btn" onclick="enviarEmailDireto(\'' + escapeAttr(aluno.numero) + '\')">📧</button>' : '');
+            } else {
+              botoesAcao = '<button class="btn-generate action-btn" onclick="selecionarAluno(\'' + idAluno + '\')">📄 Gerar</button>';
+            }
+
+            return '<div class="cpf-child-row">' +
+              fotoInline +
+              '<span class="cpf-child-name">' + escapeHtml(aluno.nome) + '</span>' +
+              '<span class="cpf-child-escola">' + escapeHtml(aluno.escola) + '</span>' +
+              '<small style="color:#888;font-size:11px;">' + formatarDataBR(aluno.dataValidade) + '</small>' +
+              statusBadge +
+              '<div class="cpf-child-actions">' + botoesAcao + '</div>' +
+              '</div>';
+          }).join('');
+
+          html += '<tr>' +
+            '<td colspan="7" style="padding:6px 8px;">' +
+            '<div class="cpf-group-container">' +
+            '<details class="cpf-group">' +
+            '<summary>' + labelResumo + '</summary>' +
+            '<div class="cpf-group-children">' + filhosHtml + '</div>' +
+            '</details>' +
+            '</div>' +
+            '</td>' +
+            '</tr>';
+        }
+      });
+
+      tbody.innerHTML = html;
+    }
+
+    function renderizarPaginacaoTabela() {
+      var totalPaginas = Math.ceil(alunosFiltrados.length / registrosPorPagina);
+      var container    = document.getElementById('paginacaoTabela');
+      container.innerHTML = '';
+      if (totalPaginas <= 1) return;
+
+      var maxBotoes = 5;
+      var inicio = Math.max(1, paginaAtualTabela - Math.floor(maxBotoes / 2));
+      var fim    = inicio + maxBotoes - 1;
+      if (fim > totalPaginas) { fim = totalPaginas; inicio = Math.max(1, fim - maxBotoes + 1); }
+
+      function criarBtn(label, pagina, disabled) {
+        var btn = document.createElement('button');
+        btn.textContent = label;
+        btn.className   = 'btn-search';
+        btn.disabled    = disabled;
+        btn.style.padding = '8px 14px';
+        btn.onclick     = function () { paginaAtualTabela = pagina; renderizarTabela(); };
+        container.appendChild(btn);
+      }
+
+      if (paginaAtualTabela > 1) criarBtn('«', paginaAtualTabela - 1, false);
+      for (var i = inicio; i <= fim; i++) criarBtn(String(i), i, i === paginaAtualTabela);
+      if (paginaAtualTabela < totalPaginas) criarBtn('»', paginaAtualTabela + 1, false);
+    }
+
+    // ── SELECIONAR DA TABELA ──────────────────────────────────
+    function selecionarAluno(identificador) {
+      // identificador pode ser "CPF" ou "CPF:rowIndex"
+      // No campo de busca, usamos apenas o CPF (sem rowIndex)
+      var cpf = identificador.split(':')[0];
+      document.getElementById('cardNumber').value = cpf;
+      // Guarda o identificador completo para gerar a carteirinha correta
+      window._alunoIdentificador = identificador;
+      buscarEExibir(identificador);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ── ENVIAR E-MAIL DIRETO DA TABELA ────────────────────────
+    function enviarEmailDireto(numero) {
+      if (!confirm('Enviar carteirinha por e-mail para este aluno?')) return;
+      setStatus('Enviando e-mail...', 'info');
+
+      google.script.run
+        .withSuccessHandler(function (resp) {
+          setStatus((resp.success ? '✓ ' : '✗ ') + resp.message, resp.success ? 'success' : 'error');
+        })
+        .withFailureHandler(function (error) {
+          setStatus('✗ Erro ao enviar: ' + error.message, 'error');
+        })
+        .sendEmail(numero);
+    }
+
+    // ── ESCAPE HTML / ATTR ────────────────────────────────────
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function escapeAttr(str) {
+      return String(str || '').replace(/'/g, "\\'");
+    }
+  </script>
+</body>
+</html>
